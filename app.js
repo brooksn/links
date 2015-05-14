@@ -49,6 +49,10 @@ app.use(function*(next){
       yield knex('links').insert(insert);
       this.response.body = 'Success! visit brooks.click/' + insert.slug;
     } catch(e) {
+      console.log(pgconnection);
+      console.log(process.env.DATABASE_URL);
+      console.log('error:');
+      console.log(e);
       yield this.render('index', {
         message:'Something went wrong :('
       });
