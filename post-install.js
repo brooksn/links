@@ -14,6 +14,7 @@ knex.schema.hasTable('links').then(function(exists){
       table.string('slug').unique();
       table.string('url');
       table.string('combo');
+      table.boolean('private').defaultTo(false);
       table.timestamps();
     }).then(function(result){
       console.log('result:');
