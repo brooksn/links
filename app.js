@@ -24,7 +24,7 @@ app.use(hbs.middleware({
 
 var linklist = function(item){
   var destination;
-  if (item.url.length > 23) destination = item.url.substr(0,20) + '...';
+  if (item.url.length > 30) destination = item.url.substr(0,27) + '...';
   else destination = item.url;
   return {
     slug: item.slug,
@@ -87,12 +87,14 @@ app.use(function*(next){
   yield next;
   if (this.method !== 'GET') return;
   var slug = this.request.path.split('/').pop();
-  if (slug === '') {
+  if (slug === '' || slug === 'add') {
     this.response.type = 'text/html';
     var publiclinks = yield knex.select(['slug', 'url']).from('links').whereNot('private', true);
-    yield this.render('index', {
+    var opts = {
       links: publiclinks.map(linklist)
-    });
+    };
+    if (slug !== 'add') opts.hideform = true;
+    yield this.render('index', opts);
     return;
   }
 

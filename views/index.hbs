@@ -23,6 +23,7 @@
       </div>
       {{/if}}
       
+      {{#unless hideform}}
       <form method="post">
         <div class="row">
           <div class="input-group input-group">
@@ -54,6 +55,7 @@
           <button type="submit" class="btn btn-default">Submit</button>
         </div>
       </form>
+      {{/unless}}
       <div class="column">
         <ul>
           {{#each links}}
