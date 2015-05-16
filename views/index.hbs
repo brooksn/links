@@ -1,7 +1,12 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{#unless hideform}}
     <title>Add URL</title>
+    {{else}}
+    <title>List URLs</title>
+    {{/unless}}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     
@@ -11,7 +16,17 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <style>
-
+      #listcol {
+        margin-left: -34px;
+        padding-right: 0px;
+        padding-left: 0px;
+      }
+      #listcol li {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 100%;
+      }
     </style>
   </head>
   <body>
@@ -56,14 +71,16 @@
         </div>
       </form>
       {{/unless}}
-      <div class="column">
-        <ul>
-          {{#each links}}
-          <li>
-            <a href="{{link}}">{{slug}}</a> &rarr;  	 {{destination}}
-          </li>
-          {{/each}}
-        </ul>
+      <div id="listrow" class="row">
+        <div id="listcol" class="col-xs-12 col-sm-12">
+          <ul>
+            {{#each links}}
+            <li>
+              <a href="{{link}}">{{slug}}</a> &rarr; {{destination}}
+            </li>
+            {{/each}}
+          </ul>
+        </div>
       </div>
     </div>
   </body>

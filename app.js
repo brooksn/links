@@ -24,12 +24,12 @@ app.use(hbs.middleware({
 
 var linklist = function(item){
   var destination;
-  if (item.url.length > 30) destination = item.url.substr(0,27) + '...';
-  else destination = item.url;
+  //if (item.url.length > 30) destination = item.url.substr(0,27) + '...';
+  //else destination = item.url;
   return {
     slug: item.slug,
     link: url + '/' + item.slug,
-    destination: destination
+    destination: item.url
   }
 };
 
