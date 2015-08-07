@@ -27,8 +27,8 @@ var linklist = function(item){
   //if (item.url.length > 30) destination = item.url.substr(0,27) + '...';
   //else destination = item.url;
   return {
-    slug: item.slug,
-    link: url + '/' + item.slug,
+    slug: decodeURIComponent(item.slug),
+    link: url + '/' + decodeURIComponent(item.slug),
     destination: item.url
   }
 };
@@ -54,7 +54,7 @@ app.use(function*(next){
   } else {
     var insert = {
       url: form.url,
-      slug: form.slug
+      slug: encodeURIComponent(form.slug)
     };
     if (form.combo && form.combo != '') {
       var salt = yield bcrypt.genSalt(saltlen);
@@ -67,7 +67,7 @@ app.use(function*(next){
       var publiclinks = yield knex.select(['slug', 'url']).from('links').whereNot('private', true);
       yield this.render('index', {
         links: publiclinks.map(linklist),
-        message:'Success! visit ' + url + '/' + insert.slug
+        message:'Success! visit ' + url + '/' + decodeURIComponent(insert.slug)
       });
     } catch(e) {
       console.log(pgconnection);
