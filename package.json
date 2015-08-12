@@ -8,8 +8,8 @@
     "postinstall": "iojs post-install.js"
   },
   "engines": {
-    "iojs": "^2.0.1",
-    "npm": "^2.9.0"
+    "iojs": "^3.0.0",
+    "npm": "^2.13.3"
   },
   "dependencies": {
     "co-bcryptjs": "^0.2.0",

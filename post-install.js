@@ -11,9 +11,10 @@ knex.schema.hasTable('links').then(function(exists){
     knex.schema.createTable('links', function(table){
       console.log('there.');
       table.increments();
-      table.string('slug').unique();
-      table.string('url');
-      table.string('combo');
+      table.text('displayslug');
+      table.text('normalizedslug').unique();
+      table.text('url');
+      table.text('combo');
       table.boolean('private').defaultTo(false);
       table.timestamps();
     }).then(function(result){

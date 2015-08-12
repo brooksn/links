@@ -22,13 +22,18 @@ app.use(hbs.middleware({
   viewPath: __dirname + '/views'
 }));
 
+var normalizedSlug = function(slug){
+  var matchMost = /(?!%E2%9sea%8[cC])(%E2%9C%8C%F0%9F%8F|%F0%\w\w%\w\w%\w\w|%E2%\w\w%\w\w)((%F0%9F%8F)?%BA|(%F0%9F%8F)?%BB|(%F0%9F%8F)?%BC|(%F0%9F%8F)?%BD|(%F0%9F%8F)?%BE|(%F0%9F%8F)?%BF)/gi;
+  return slug.replace(matchMost, '$1').toLowerCase();
+};
+
 var linklist = function(item){
   var destination;
   //if (item.url.length > 30) destination = item.url.substr(0,27) + '...';
   //else destination = item.url;
   return {
-    slug: decodeURIComponent(item.slug),
-    link: url + '/' + decodeURIComponent(item.slug),
+    slug: decodeURIComponent(item.displayslug),
+    link: url + '/' + decodeURIComponent(item.normalizedslug),
     destination: item.url
   }
 };
@@ -38,7 +43,7 @@ app.use(function*(next){
   if (this.method !== 'POST') return;
   var form = this.request.body;
   if (form.password !== password) {
-    var publiclinks = yield knex.select(['slug', 'url']).from('links').whereNot('private', true);
+    var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url']).from('links').whereNot('private', true);
     yield this.render('index', {
       badpassword:true,
       links: publiclinks.map(linklist),
@@ -46,15 +51,18 @@ app.use(function*(next){
     });
     return;
   } else if (!form.slug || !form.url) {
-    var publiclinks = yield knex.select(['slug', 'url']).from('links').whereNot('private', true);
+    var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url']).from('links').whereNot('private', true);
     yield this.render('index', {
       links: publiclinks,
       message:'You are missing a required field.'
     });
   } else {
+    var e = encodeURIComponent(form.slug);
+    var ns = normalizedSlug(e);
     var insert = {
       url: form.url,
-      slug: encodeURIComponent(form.slug)
+      displayslug: e,
+      normalizedslug: ns
     };
     if (form.combo && form.combo != '') {
       var salt = yield bcrypt.genSalt(saltlen);
@@ -64,7 +72,7 @@ app.use(function*(next){
     if (form.private) insert.private = true;
     try {
       yield knex('links').insert(insert);
-      var publiclinks = yield knex.select(['slug', 'url']).from('links').whereNot('private', true);
+      var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url']).from('links').whereNot('private', true);
       yield this.render('index', {
         links: publiclinks.map(linklist),
         message:'Success! visit ' + url + '/' + decodeURIComponent(insert.slug)
@@ -74,7 +82,7 @@ app.use(function*(next){
       console.log(process.env.DATABASE_URL);
       console.log('error:');
       console.log(e);
-      var publiclinks = yield knex.select(['slug', 'url']).from('links').whereNot('private', true);
+      var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url']).from('links').whereNot('private', true);
       yield this.render('index', {
         links: publiclinks,
         message:'Something went wrong :('
@@ -89,7 +97,7 @@ app.use(function*(next){
   var slug = this.request.path.split('/').pop();
   if (slug === '' || slug === 'add') {
     this.response.type = 'text/html';
-    var publiclinks = yield knex.select(['slug', 'url']).from('links').whereNot('private', true);
+    var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url']).from('links').whereNot('private', true);
     var opts = {
       links: publiclinks.map(linklist)
     };
@@ -102,8 +110,9 @@ app.use(function*(next){
     this.response.status = 307;
     this.response.redirect(defaults[slug]);
   } else {
-    var rows = yield knex.select('*').from('links').where('slug', slug);
-    if (rows[0] && rows[0].slug === slug) {
+    var ns = normalizedSlug(slug);
+    var rows = yield knex.select('*').from('links').where('normalizedslug', ns);
+    if (rows[0] && rows[0].normalizedslug === ns) {
       //if (rows[0].combo)
       this.response.status = 307;
       this.response.redirect(rows[0].url);
