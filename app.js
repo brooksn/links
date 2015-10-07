@@ -5,7 +5,7 @@ var hbs = require('koa-hbs');
 var body = require('koa-bodyparser');
 var bcrypt = require('co-bcryptjs');
 var pgconnection = require('./pgconnection.js');
-var url = process.env.URL || 'http://brooks.click';
+var url = process.env.URL || process.env.HEROKU_URL;
 var knex = require('knex')({
   client: 'pg',
   connection: pgconnection

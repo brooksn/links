@@ -1,3 +1,14 @@
 {
-  "addons": ["heroku-postgresql:hobby-dev"]
+  "name": "Links",
+  "description": "A small url shortener with postgres and koa",
+  "addons": ["heroku-postgresql"],
+  "env": {
+    "LINKS_PASSWORD": {
+      "description": "plaintext password required to save a url",
+      "value": "password"
+    }
+  },
+  "scripts": {
+    "postdeploy": "heroku config:set HEROKU_URL=$(heroku info -s | grep web-url | cut -d= -f2)"
+  }
 }

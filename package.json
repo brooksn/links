@@ -4,12 +4,12 @@
   "description": "URL shortener using koajs",
   "main": "index.js",
   "scripts": {
-    "start": "iojs index.js",
-    "postinstall": "iojs post-install.js"
+    "start": "node index.js",
+    "postinstall": "node post-install.js"
   },
   "engines": {
-    "iojs": "^3.0.0",
-    "npm": "^2.13.3"
+    "node": "^4.1.2",
+    "npm": "^2.14.4"
   },
   "dependencies": {
     "co-bcryptjs": "^0.2.0",
