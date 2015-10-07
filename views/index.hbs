@@ -85,8 +85,6 @@
     </div>
     <script>
       var b = window.location.href;
-      alert(b.substr(b.length-4, b.length));
-      alert('shorter: ' + b.substr(0, b.length-4));
       if (b.substr(b.length-4, b.length) === '/add') b = b.substr(0, b.length-4) + '/';
       document.body.innerHTML = document.body.innerHTML.replace('Success! visit /', 'Success! visit ' + b);
     </script>
