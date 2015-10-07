@@ -7,8 +7,5 @@
       "description": "plaintext password required to save a url",
       "value": "password"
     }
-  },
-  "scripts": {
-    "postdeploy": "heroku config:set HEROKU_URL=$(heroku info -s | grep web-url | cut -d= -f2)"
   }
 }
