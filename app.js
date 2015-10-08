@@ -15,7 +15,8 @@ var password = process.env.LINKS_PASSWORD;
 if (!password) throw Error('LINKS_PASSWORD is not set.');
 
 var defaults = JSON.parse(fs.readFileSync('links.json', 'utf8'));
-
+var defaultslist = [];
+for (key in defaults) defaultslist.push({slug: key, link: '/' + key, destination: defaults[key]});
 var app = koa();
 app.use(body());
 app.use(hbs.middleware({
@@ -39,21 +40,26 @@ var linklist = function(item){
 };
 
 app.use(function*(next){
+  'use strict';
   yield next;
   if (this.method !== 'POST') return;
   var form = this.request.body;
   if (form.password !== password) {
     var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
+    let links = publiclinks.map(linklist);
+    Array.prototype.push.apply(defaultslist, links);
     yield this.render('index', {
       badpassword:true,
-      links: publiclinks.map(linklist),
+      links: defaultslist,
       message:'The password was incorrect.'
     });
     return;
   } else if (!form.slug || !form.url) {
     var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
+    let links = publiclinks.map(linklist);
+    Array.prototype.push.apply(defaultslist, links);
     yield this.render('index', {
-      links: publiclinks,
+      links: defaultslist,
       message:'You are missing a required field.'
     });
   } else {
@@ -73,8 +79,10 @@ app.use(function*(next){
     try {
       yield knex('links').insert(insert);
       var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
+      let links = publiclinks.map(linklist);
+      Array.prototype.push.apply(defaultslist, links);
       yield this.render('index', {
-        links: publiclinks.map(linklist),
+        links: defaultslist,
         message:'Success! visit ' + url + '/' + decodeURIComponent(insert.displayslug)
       });
     } catch(e) {
@@ -83,8 +91,10 @@ app.use(function*(next){
       console.log('error:');
       console.log(e);
       var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
+      let links = publiclinks.map(linklist);
+      Array.prototype.push.apply(defaultslist, links);
       yield this.render('index', {
-        links: publiclinks,
+        links: defaultslist,
         message:'Something went wrong :('
       });
     }
@@ -92,14 +102,17 @@ app.use(function*(next){
 });
 
 app.use(function*(next){
+  'use strict';
   yield next;
   if (this.method !== 'GET') return;
   var slug = this.request.path.split('/').pop();
   if (slug === '' || slug === 'add') {
     this.response.type = 'text/html';
     var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
+    let links = publiclinks.map(linklist);
+    Array.prototype.push.apply(defaultslist, links);
     var opts = {
-      links: publiclinks.map(linklist)
+      links: defaultslist
     };
     if (slug !== 'add') opts.hideform = true;
     yield this.render('index', opts);
