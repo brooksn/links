@@ -4,7 +4,7 @@
   "description": "URL shortener using koajs",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --es-staging index.js",
     "postinstall": "node post-install.js"
   },
   "engines": {

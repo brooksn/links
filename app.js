@@ -47,7 +47,7 @@ app.use(function*(next){
   if (form.password !== password) {
     var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
     let links = publiclinks.map(linklist);
-    Array.prototype.push.apply(defaultslist, links);
+    links.push(...defaultslist, ...publiclinks.map(linklist));
     yield this.render('index', {
       badpassword:true,
       links: defaultslist,
@@ -56,10 +56,10 @@ app.use(function*(next){
     return;
   } else if (!form.slug || !form.url) {
     var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
-    let links = publiclinks.map(linklist);
-    Array.prototype.push.apply(defaultslist, links);
+    let links = [];
+    links.push(...defaultslist, ...publiclinks.map(linklist));
     yield this.render('index', {
-      links: defaultslist,
+      links: links,
       message:'You are missing a required field.'
     });
   } else {
@@ -79,10 +79,10 @@ app.use(function*(next){
     try {
       yield knex('links').insert(insert);
       var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
-      let links = publiclinks.map(linklist);
-      Array.prototype.push.apply(defaultslist, links);
+      let links = [];
+      links.push(...defaultslist, ...publiclinks.map(linklist));
       yield this.render('index', {
-        links: defaultslist,
+        links: links,
         message:'Success! visit ' + url + '/' + decodeURIComponent(insert.displayslug)
       });
     } catch(e) {
@@ -91,10 +91,10 @@ app.use(function*(next){
       console.log('error:');
       console.log(e);
       var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
-      let links = publiclinks.map(linklist);
-      Array.prototype.push.apply(defaultslist, links);
+      let links = [];
+      links.push(...defaultslist, ...publiclinks.map(linklist));
       yield this.render('index', {
-        links: defaultslist,
+        links: links,
         message:'Something went wrong :('
       });
     }
@@ -109,10 +109,10 @@ app.use(function*(next){
   if (slug === '' || slug === 'add') {
     this.response.type = 'text/html';
     var publiclinks = yield knex.select(['displayslug', 'normalizedslug', 'url', 'id']).from('links').whereNot('private', true).orderBy('id', 'asc');
-    let links = publiclinks.map(linklist);
-    Array.prototype.push.apply(defaultslist, links);
+    let links = [];
+    links.push(...defaultslist, ...publiclinks.map(linklist));
     var opts = {
-      links: defaultslist
+      links: links
     };
     if (slug !== 'add') opts.hideform = true;
     yield this.render('index', opts);
