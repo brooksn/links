@@ -1,12 +1,12 @@
 const Hapi = require('hapi')
-const { getLinks, getLinkBySlug, getPublicLinks, saveLink } = require('./store.js')
+const { getLinkBySlug, getPublicLinks, saveLink } = require('./store.js')
 const html = require('./html.js')
 const server = Hapi.server({ port: process.env.PORT })
 
 server.route({
   method: 'GET',
   path: '/',
-  handler(request, h) {
+  handler() {
     return html(getPublicLinks(), true)
   }
 })
@@ -14,7 +14,7 @@ server.route({
 server.route({
   method: 'GET',
   path: '/add',
-  handler(request, h) {
+  handler() {
     return html(getPublicLinks(), false)
   }
 })
@@ -35,32 +35,28 @@ server.route({
 server.route({
   method: 'POST',
   path: '/add',
-  handler(request, h) {
+  handler(request) {
     const body = request.payload
     const { url, slug, password, web } = body
     const isPrivate = !!body.private
-    console.log('body:', body)
-    if (body.web && password !== process.env.PASSWORD) {
+
+    if (web && password !== process.env.PASSWORD) {
       return html(getPublicLinks(), false, 'The password was incorrect 🤥')
-    } else if (body.web && (!body.slug || !body.url)) {
-      return html(getPublicLinks(), false, 'You are missing a required field 💩')
-    } else if (body.web) {
+    } else if (web && (!slug || !url)) {
+      return html(getPublicLinks(), false, 'You are missing a required field 😔')
+    } else if (web) {
       saveLink(url, slug, isPrivate)
-      return html(getPublicLinks(), false, 'I think I saved it 😀')
-      //let rest = false;
-      //yield saveLink(form.slug, form.url, form.combo, form.private, rest, here);
+      return html(getPublicLinks(), false, 'Saved! 🎉')
     }
- 
+
     return { ...body }
   }
 })
 
 void async function start() {
-
   try {
     await server.start()
-  }
-    catch (err) {
+  } catch (err) {
     console.log(err)
     process.exit(1)
   }
